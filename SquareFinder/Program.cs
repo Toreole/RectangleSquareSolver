@@ -49,7 +49,8 @@ namespace SquareFinder
 
         public void Start()
         {
-            Solve(new Vector2(0, 0), new Vector2(w, h), 0);
+            //Solve(new Vector2(0, 0), new Vector2(w, h), 0);
+            GrowSolve(new Vector2(w, h));
         }
 
         public void Save()
@@ -107,6 +108,64 @@ namespace SquareFinder
                 return;
             }
             Solve(globalOffset, bounds, iteration);
+        }
+
+        void GrowSolve(Vector2 rect)
+        {
+            //current size of the square.
+            int size = 1;
+            int squareID = 0; //the ID to color the square.
+            Vector2 origin = new Vector2(0, 0);
+            while (true) //loop until the break condition is met.
+            {
+                //check if the origin is inside the bounds
+                if (!PositionIsInBounds(origin, rect))
+                {
+                    break;
+                }
+                //!repeat
+                //check if its inside the bounds on x and y
+                //if not, draw the square and move the origin.
+                //check x first
+                if (!PositionIsInBounds(origin + new Vector2(size-1, 0), rect))
+                {
+                    //_X is out of bounds
+                    size--;
+                    DrawSquare(squareID, origin, size);
+                    squareID++;
+                    origin += new Vector2(0, size);
+                    size = 0;
+                }
+                else if(!PositionIsInBounds(origin + new Vector2(0, size-1), rect))
+                {
+                    //Y is out of bounds.
+                    size--;
+                    DrawSquare(squareID, origin, size);
+                    squareID++;
+                    origin += new Vector2(size, 0);
+                    size = 0;
+                }
+                //increase the size
+                size++;
+
+            }
+        }
+
+        void DrawSquare(int ID, Vector2 position, int size)
+        {
+            Color col = colors[ID % colors.Length];
+            for (int dx = 0; dx < size; dx++)
+                for (int dy = 0; dy < size; dy++)
+                    image.SetPixel(position.x + dx, position.y + dy, col);
+        }
+
+        bool PositionIsInBounds(Vector2 position, Vector2 rect)
+        {
+            if (position.x >= rect.x || position.x < 0)
+                return false;
+            if (position.y >= rect.y || position.y < 0)
+                return false;
+            return true;
         }
     }
 
